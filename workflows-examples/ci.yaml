@@ -40,29 +40,36 @@ jobs:
 
       # ========================================================================
 
-      - { uses: ./.github/actions/turbo, name: Setup Turbo }
-      - { uses: ./.github/actions/node-pnpm, name: Setup Node + PNPM }
+      - name: Setup Turbo
+        uses: JulianCataldo/gh-actions/turbo@main
+
+      - name: Setup Node + PNPM
+        uses: JulianCataldo/gh-actions/node-pnpm@main
 
       # ========================================================================
 
-      - { uses: ./.github/actions/linting, name: Linting }
+      - name: Linting
+        uses: JulianCataldo/gh-actions/linting@main
 
       # ========================================================================
 
-      - { run: 'pnpm run build', name: Build the whole mono-repo. packages }
+      - name: Build the whole mono-repo. packages
+        run: 'pnpm run build'
 
       # ========================================================================
 
-      - { run: pnpm run test, name: Unit tests — Vitest }
+      - name: Unit tests — Vitest
+        run: pnpm run test
 
       # ========================================================================
 
-      - { run: 'pnpm run build:demo', name: Build demo website }
+      - name: Build demo website
+        run: 'pnpm run build:demo'
 
       # ========================================================================
 
       - name: Deploy to Vercel
-        uses: ./.github/actions/vercel
+        uses: JulianCataldo/gh-actions/vercel@main
         id: vercel-deploy
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -75,13 +82,13 @@ jobs:
       - name: Output URL
         run: echo ${{steps.vercel-deploy.outputs.PREVIEW_URL}}
 
-      - uses: ./.github/actions/playwright
+      - uses: JulianCataldo/gh-actions/playwright@main
         name: E2E tests — Playwright
         with: { PREVIEW_URL: '${{steps.vercel-deploy.outputs.PREVIEW_URL}}' }
 
       # ========================================================================
 
-      - uses: ./.github/actions/release
+      - uses: JulianCataldo/gh-actions/release@main
         if: github.ref == 'refs/heads/main'
         name: Releases
         with:

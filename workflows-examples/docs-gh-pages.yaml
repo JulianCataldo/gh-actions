@@ -35,11 +35,13 @@ jobs:
 
       # ————————————————————————————————————————————————————————————————————————
 
-      - { uses: ./.github/actions/node-pnpm, name: Setup Node }
+      - name: Setup Node
+        uses: JulianCataldo/gh-actions/node-pnpm@main
 
       # ————————————————————————————————————————————————————————————————————————
 
-      - { run: 'pnpm run build:docs', name: Build documentation website }
+      - name: Build documentation website
+        run: 'pnpm run build:docs'
 
       - name: Upload artifact — Docs
         uses: actions/upload-pages-artifact@v1
