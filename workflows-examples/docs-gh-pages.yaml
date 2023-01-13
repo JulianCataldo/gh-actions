@@ -1,0 +1,51 @@
+name: Documentation website — GH Pages
+
+on:
+  push:
+    branches: ['main']
+    paths:
+      - 'docs/**'
+      - '!.github/**'
+
+  workflow_dispatch:
+
+env:
+  CI: true
+  FORCE_COLOR: true
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  deploy-docs:
+    name: Deploy docs + demo
+
+    runs-on: ubuntu-20.04
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write
+      id-token: write
+
+    steps:
+      - name: Checkout code repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      # ————————————————————————————————————————————————————————————————————————
+
+      - { uses: ./.github/actions/node-pnpm, name: Setup Node }
+
+      # ————————————————————————————————————————————————————————————————————————
+
+      - { run: 'pnpm run build:docs', name: Build documentation website }
+
+      - name: Upload artifact — Docs
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: ./docs/dist
+
+      - name: Deploy to GitHub Pages — Docs
+        id: deployment
+        uses: actions/deploy-pages@v1
