@@ -1,0 +1,28 @@
+name: Release
+description: '…'
+
+inputs:
+  GITHUB_TOKEN:
+    description: '…'
+    required: true
+  NPM_TOKEN:
+    description: '…'
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Create release pull request or publish to NPM
+
+      uses: changesets/action@v1
+      with:
+        commit: |
+          chore: update versions
+
+          [skip-checks: true]
+        title: 'chore: update versions'
+        version: pnpm run ci:version
+        publish: pnpm run ci:publish
+      env:
+        GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
+        NPM_TOKEN: ${{ inputs.NPM_TOKEN }}

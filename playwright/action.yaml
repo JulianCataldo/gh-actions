@@ -1,0 +1,57 @@
+name: Playwright
+description: '…'
+
+inputs:
+  PREVIEW_URL:
+    description: '…'
+    required: true
+
+runs:
+  using: composite
+  steps:
+    # Caching: https://github.com/microsoft/playwright/issues/7249#issuecomment-1317670494
+    # https://playwrightsolutions.com/playwright-github-action-to-cache-the-browser-binaries
+    - name: Output URL
+      shell: bash
+      run: 'echo URL: ${{inputs.PREVIEW_URL}}'
+
+    - name: Get installed Playwright version
+      shell: bash
+      id: playwright-version
+      run: echo "PLAYWRIGHT_VERSION=$(node -e "console.log(require('./package-lock.json').dependencies['@playwright/test'].version)")" >> $GITHUB_ENV
+
+    - name: Cache playwright binaries
+      uses: actions/cache@v3
+      id: playwright-cache
+      with:
+        path: |
+          ~/.cache/ms-playwright
+        key: ${{ runner.os }}-playwright-${{ env.PLAYWRIGHT_VERSION }}
+
+    - name: Install Playwright Browsers A
+      run: pnpm dlx playwright@1.29.2 install --with-deps
+      shell: bash
+      if: steps.playwright-cache.outputs.cache-hit != 'true'
+
+    - name: Install Playwright Browsers B
+      run: pnpm dlx playwright@1.29.2 install-deps
+      shell: bash
+      if: steps.playwright-cache.outputs.cache-hit != 'true'
+
+    - name: Run E2E tests — Playwright
+      shell: bash
+      env:
+        CI: 'true'
+        PREVIEW_URL: ${{ inputs.PREVIEW_URL }}
+      run: |
+        echo "CI: ${CI} P: ${PREVIEW_URL}" && pnpm run test:e2e
+
+    # # TODO: Try it
+    # - name: Upload Playwright report
+    #   uses: actions/upload-artifact@v3
+    #   if: always()
+
+    #   with:
+    #     name: playwright-report
+    #     path: playwright-report/
+    #     retention-days: 30

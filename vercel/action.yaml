@@ -1,0 +1,42 @@
+name: Vercel
+description: '…'
+
+inputs:
+  VERCEL_TOKEN:
+    description: '…'
+    required: true
+  VERCEL_ORG_ID:
+    description: '…'
+    required: true
+  VERCEL_PROJECT_ID:
+    description: '…'
+    required: true
+  GITHUB_TOKEN:
+    description: '…'
+    required: true
+
+outputs:
+  PREVIEW_URL:
+    description: …
+    value: ${{steps.vercel-deploy.outputs.preview-url}}
+
+runs:
+  using: composite
+  steps:
+    - name: Deploy to Vercel
+      uses: amondnet/vercel-action@v19
+      id: vercel-deploy
+      with:
+        vercel-token: ${{ inputs.VERCEL_TOKEN }} # Required
+        github-token: ${{ inputs.GITHUB_TOKEN }} # Optional
+        vercel-args: '--prod --prebuilt' # Optional
+        vercel-org-id: ${{ inputs.VERCEL_ORG_ID}} #Required
+        vercel-project-id: ${{ inputs.VERCEL_PROJECT_ID}} # Required
+        working-directory: ./demo # Your Working Directory, Optional
+        # alias-domains: | # Optional
+        # TODO: Test it
+        #   demo--pr-{{PR_NUMBER}}_{{BRANCH}}.{{CUSTOM_USER}}.vercel.app
+
+    - name: Output URL
+      shell: bash
+      run: echo $PREVIEW_URL ${{steps.vercel-deploy.outputs.preview-url}}

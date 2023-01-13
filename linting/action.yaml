@@ -1,0 +1,21 @@
+name: Linting + Formatting
+description: '…'
+
+runs:
+  using: composite
+  steps:
+    - name: Lint last commit — Commitlint
+      shell: bash
+      run: pnpm run lint:commit
+
+    - name: Lint ECMA — ESLint
+      shell: bash
+      run: pnpm run lint:ecma
+
+    - name: Lint CSS — Stylelint
+      shell: bash
+      run: pnpm run lint:css
+
+    - name: Check all formatting — Prettier
+      shell: bash
+      run: pnpm run format:check
